@@ -49,7 +49,10 @@ func (verifier *idTokenVerifier) get_claims(id_token string) (*jwt.Claims, error
 		return nil, errors.New("Multi-signature JWT not supported or missing headers information")
 	}
 	key_id := headers[0].KeyID
-	keys := verifier.kchain.Key(key_id)
+	keys, err := verifier.kchain.Key(key_id)
+	if err != nil {
+		return nil, err
+	}
 	if len(keys) == 0 {
 		return nil, errors.New("No keys found")
 	}

@@ -25,16 +25,20 @@ func newKeychainCache(config Config, base_key_provider jwkProvider) *keychainCac
 
 // Tries to get signing key from cache. On cache miss it tries to get and cache
 // the signing key from the base_key_provider
-func (k *keychainCache) Key(kid string) []jose.JSONWebKey {
+func (k *keychainCache) Key(kid string) ([]jose.JSONWebKey, error) {
 	// TODO: Log critical errors
-	jwks, ok := k.key_cache.Get(kid)
-	if ok {
-		return jwks.([]jose.JSONWebKey)
+	if jwks, ok := k.key_cache.Get(kid); ok {
+		return jwks.([]jose.JSONWebKey), nil
 	}
-	newjwks := k.base_key_provider.Key(kid)
+
+	newjwks, err := k.base_key_provider.Key(kid)
+	if err != nil {
+		return []jose.JSONWebKey{}, err
+	}
+
 	if len(newjwks) > 0 {
 		// Only cache if the base provider has keys
 		k.key_cache.Set(kid, newjwks, cache.DefaultExpiration)
 	}
-	return newjwks
+	return newjwks, nil
 }
