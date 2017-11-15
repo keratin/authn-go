@@ -65,33 +65,31 @@ func (ic *internalClient) init_server_config() error {
 	}
 }
 
-func (ic *internalClient) get_signing_key(kid string) (jose.JSONWebKey, error) {
+func (ic *internalClient) Key(kid string) []jose.JSONWebKey {
+	// TODO: Add logging for unexpected errors
 	resp, err := http.Get(ic.serverConfig.JwksUri)
 	if err != nil {
-		return jose.JSONWebKey{}, err
+		return []jose.JSONWebKey{}
 	}
 	defer resp.Body.Close()
 
 	if !is_status_success(resp.StatusCode) {
-		return jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksUri)
+		// return jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksUri)
+		return []jose.JSONWebKey{}
 	}
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return jose.JSONWebKey{}, err
+		return []jose.JSONWebKey{}
 	}
 
 	jwks := &jose.JSONWebKeySet{}
 
 	err = json.Unmarshal(bodyBytes, jwks)
 	if err != nil {
-		return jose.JSONWebKey{}, err
+		return []jose.JSONWebKey{}
 	}
-	jwk_list := jwks.Key(kid)
-	if len(jwk_list) == 0 {
-		return jose.JSONWebKey{}, fmt.Errorf("Unable to find kid:%v in jwks", kid)
-	}
-	return jwk_list[0], nil
+	return jwks.Key(kid)
 }
 
 func (ic *internalClient) get_full_url(location string) string {

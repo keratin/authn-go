@@ -5,7 +5,6 @@ package authn
 type AuthnClient struct {
 	config   Config
 	iclient  *internalClient
-	kchain   *keychain
 	verifier *idTokenVerifier
 }
 
@@ -22,9 +21,8 @@ func NewAuthnClient(config Config) (*AuthnClient, error) {
 		return nil, err
 	}
 
-	ac.kchain = newKeychain(config, ac.iclient)
-
-	ac.verifier = newIdTokenVerifier(config, ac.kchain)
+	kchain := newKeychainCache(config, ac.iclient)
+	ac.verifier = newIdTokenVerifier(config, kchain)
 
 	return &ac, nil
 }

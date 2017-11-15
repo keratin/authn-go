@@ -10,11 +10,11 @@ import (
 
 type idTokenVerifier struct {
 	config    Config
-	kchain    *keychain
+	kchain    jwkProvider
 	init_time time.Time
 }
 
-func newIdTokenVerifier(config Config, kchain *keychain) *idTokenVerifier {
+func newIdTokenVerifier(config Config, kchain jwkProvider) *idTokenVerifier {
 	return &idTokenVerifier{
 		config:    config,
 		kchain:    kchain,
@@ -49,10 +49,11 @@ func (verifier *idTokenVerifier) get_claims(id_token string) (*jwt.Claims, error
 		return nil, errors.New("Multi-signature JWT not supported or missing headers information")
 	}
 	key_id := headers[0].KeyID
-	key, err := verifier.kchain.get(key_id)
-	if err != nil {
-		return nil, err
+	keys := verifier.kchain.Key(key_id)
+	if len(keys) == 0 {
+		return nil, errors.New("No keys found")
 	}
+	key := keys[0]
 
 	claims := &jwt.Claims{}
 	err = id_jwt.Claims(key, claims)
