@@ -13,6 +13,6 @@ type jwkProvider interface {
 }
 
 // Extracts verified in-built claims from a jwt id_token
-type jwkClaimsExtractor interface {
+type jwtClaimsExtractor interface {
 	GetVerifiedClaims(id_token string) (*jwt.Claims, error)
 }

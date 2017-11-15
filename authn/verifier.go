@@ -7,13 +7,16 @@ import (
 	"time"
 )
 
+// A JWT Claims extractor (jwtClaimsExtractor) implementation
+// which extracts claims from Authn id_token
 type idTokenVerifier struct {
 	config          Config
 	kchain          jwkProvider
-	init_time       time.Time
 	conf_issuer_url *url.URL
 }
 
+// Creates a new idTokenVerifier object by using kchain as the JWK provider
+// Claims are verified against the values specified in config
 func newIdTokenVerifier(config Config, kchain jwkProvider) (*idTokenVerifier, error) {
 	conf_issuer, err := url.Parse(config.Issuer)
 	if err != nil {
@@ -23,11 +26,11 @@ func newIdTokenVerifier(config Config, kchain jwkProvider) (*idTokenVerifier, er
 	return &idTokenVerifier{
 		config:          config,
 		kchain:          kchain,
-		init_time:       time.Now(),
 		conf_issuer_url: conf_issuer,
 	}, nil
 }
 
+// Gets verified claims from an Authn id_token
 func (verifier *idTokenVerifier) GetVerifiedClaims(id_token string) (*jwt.Claims, error) {
 	var err error
 
@@ -44,6 +47,8 @@ func (verifier *idTokenVerifier) GetVerifiedClaims(id_token string) (*jwt.Claims
 	return claims, nil
 }
 
+// Gets claims object from an id_token using the key from keychain
+// Key from keychain is fetched using KeyID found in id_token's header
 func (verifier *idTokenVerifier) get_claims(id_token string) (*jwt.Claims, error) {
 	var err error
 
@@ -75,6 +80,7 @@ func (verifier *idTokenVerifier) get_claims(id_token string) (*jwt.Claims, error
 	return claims, nil
 }
 
+// Verify the claims against the configured values
 func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	var err error
 
@@ -85,8 +91,9 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	}
 
 	// Validate rest of the claims
+	// TODO: Does Audience need URL matching too?
 	err = claims.Validate(jwt.Expected{
-		Time:     verifier.init_time,
+		Time:     time.Now(),
 		Audience: jwt.Audience{verifier.config.Audience},
 	})
 	if err != nil {
@@ -96,6 +103,7 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	return nil
 }
 
+// Verify the issuer claim against the configured issuer by using url comparison
 func (verifier *idTokenVerifier) verify_token_from_us(claims *jwt.Claims) error {
 	token_issuer, err := url.Parse(claims.Issuer)
 	if err != nil {

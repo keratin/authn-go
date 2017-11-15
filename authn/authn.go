@@ -5,7 +5,7 @@ package authn
 type AuthnClient struct {
 	config   Config
 	iclient  *internalClient
-	verifier jwkClaimsExtractor
+	verifier jwtClaimsExtractor
 }
 
 func NewAuthnClient(config Config) (*AuthnClient, error) {
