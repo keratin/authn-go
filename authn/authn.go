@@ -5,7 +5,7 @@ package authn
 type AuthnClient struct {
 	config   Config
 	iclient  *internalClient
-	verifier *idTokenVerifier
+	verifier jwkClaimsExtractor
 }
 
 func NewAuthnClient(config Config) (*AuthnClient, error) {
@@ -22,16 +22,19 @@ func NewAuthnClient(config Config) (*AuthnClient, error) {
 	}
 
 	kchain := newKeychainCache(config, ac.iclient)
-	ac.verifier = newIdTokenVerifier(config, kchain)
+	ac.verifier, err = newIdTokenVerifier(config, kchain)
+	if err != nil {
+		return nil, err
+	}
 
 	return &ac, nil
 }
 
-func (ac *AuthnClient) SubjectFrom(id_token string) (string, bool) {
-	if claims, ok := ac.verifier.get_verified_claims(id_token); ok {
-		return claims.Subject, true
+func (ac *AuthnClient) SubjectFrom(id_token string) (string, error) {
+	if claims, err := ac.verifier.GetVerifiedClaims(id_token); err != nil {
+		return "", err
 	} else {
-		return "", false
+		return claims.Subject, nil
 	}
 }
 
@@ -53,6 +56,6 @@ func InitWithConfig(config Config) error {
 	return nil
 }
 
-func SubjectFrom(id_token string) (string, bool) {
+func SubjectFrom(id_token string) (string, error) {
 	return get_global_authn().SubjectFrom(id_token)
 }

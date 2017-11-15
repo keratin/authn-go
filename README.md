@@ -32,9 +32,9 @@ func main() {
 	})
 	fmt.Println(err)
 
-	sub, ok := authn.SubjectFrom(jwt1)
-	fmt.Println(ok)
+	sub, err := authn.SubjectFrom(jwt1)
 	fmt.Println(sub)
+	fmt.Println(err)
 }
 
 ```
