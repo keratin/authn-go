@@ -88,17 +88,12 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	return jwks.Key(kid), nil
 }
 
-func (ic *internalClient) absoluteURL(location string) string {
-	relativeURL, err := url.Parse(location)
-	if err != nil {
-		panic(err)
-	}
-
-	return ic.baseURL.ResolveReference(relativeURL).String()
+func (ic *internalClient) absoluteURL(path string) string {
+	return ic.baseURL.ResolveReference(&url.URL{Path: path}).String()
 }
 
-func (ic *internalClient) get(location string, dest interface{}) (int, error) {
-	resp, err := http.Get(ic.absoluteURL(location))
+func (ic *internalClient) get(path string, dest interface{}) (int, error) {
+	resp, err := http.Get(ic.absoluteURL(path))
 	if err != nil {
 		return -1, err
 	}
