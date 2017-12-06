@@ -95,7 +95,7 @@ func TestKeychainCacheTTL(t *testing.T) {
 	// Minimum TTL is 1 min. But we cant wait that long to test.
 	// TODO: Go is not flexible enough to accept both decimal and integer ttl. Consider using seconds?
 	// Hacky test because we are screwing with internals
-	keychain_cache.key_cache = cache.New(time.Second, time.Second)
+	keychain_cache.keyCache = cache.New(time.Second, time.Second)
 
 	keychain_cache.Key("kid1")
 	assert.Equal(t, 1, mock_provider.hit_count)

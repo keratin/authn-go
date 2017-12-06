@@ -4,6 +4,7 @@ const (
 	DefaultKeychainTTL = 60
 )
 
+// Config is a configuration struct for Client
 type Config struct {
 	Issuer         string //the base url of the service handling authentication
 	PrivateBaseURL string //overrides the base url for private endpoints
