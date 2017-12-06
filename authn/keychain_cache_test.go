@@ -44,9 +44,8 @@ func (m *mockJwkProvider) Key(kid string) ([]jose.JSONWebKey, error) {
 
 	if jwk, ok := m.key_map[kid]; ok {
 		return []jose.JSONWebKey{jwk}, nil
-	} else {
-		return []jose.JSONWebKey{}, nil
 	}
+	return []jose.JSONWebKey{}, nil
 }
 
 func TestKeychainCacheHit(t *testing.T) {

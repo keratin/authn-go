@@ -56,13 +56,11 @@ func (ic *internalClient) init_server_config() error {
 	if is_status_success(status_code) {
 		if err != nil {
 			return err
-		} else {
-			ic.serverConfig = &serverconfig
-			return nil
 		}
-	} else {
-		return fmt.Errorf("Failed to fetch issuer server configuration.\nStatus Code: %d\nParse Error:%s", status_code, err)
+		ic.serverConfig = &serverconfig
+		return nil
 	}
+	return fmt.Errorf("Failed to fetch issuer server configuration.\nStatus Code: %d\nParse Error:%s", status_code, err)
 }
 
 func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {

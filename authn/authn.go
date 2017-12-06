@@ -31,11 +31,11 @@ func NewAuthnClient(config Config) (*AuthnClient, error) {
 }
 
 func (ac *AuthnClient) SubjectFrom(id_token string) (string, error) {
-	if claims, err := ac.verifier.GetVerifiedClaims(id_token); err != nil {
+	claims, err := ac.verifier.GetVerifiedClaims(id_token)
+	if err != nil {
 		return "", err
-	} else {
-		return claims.Subject, nil
 	}
+	return claims.Subject, nil
 }
 
 var Authn *AuthnClient
