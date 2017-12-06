@@ -25,7 +25,7 @@ var jwt1 = `<your test jwt here>`
 func main() {
 	err := authn.InitWithConfig(authn.Config{
 		Issuer:         "https://issuer.example.com",
-		PrivateBaseUrl: "http://private.example.com",
+		PrivateBaseURL: "http://private.example.com",
 		Audience:       "application.example.com",
 		Username:       "<Authn Username>",
 		Password:       "<Authn Password>",

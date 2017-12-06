@@ -13,11 +13,11 @@ import (
 type internalClient struct {
 	config       Config
 	serverConfig *internalClientServerConfig
-	baseUrl      *url.URL
+	baseURL      *url.URL
 }
 
 type internalClientServerConfig struct {
-	JwksUri string `json:"jwks_uri"`
+	JwksURI string `json:"jwks_uri"`
 }
 
 func newInternalClient(config Config) (*internalClient, error) {
@@ -27,12 +27,12 @@ func newInternalClient(config Config) (*internalClient, error) {
 		config: config,
 	}
 
-	err = ic.init_base_url()
+	err = ic.setBaseURLFromConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	err = ic.init_server_config()
+	err = ic.fetchServerConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -40,40 +40,38 @@ func newInternalClient(config Config) (*internalClient, error) {
 	return &ic, nil
 }
 
-func (ic *internalClient) init_base_url() error {
-	baseUrl, err := url.Parse(ic.config.PrivateBaseUrl)
+func (ic *internalClient) setBaseURLFromConfig() error {
+	baseURL, err := url.Parse(ic.config.PrivateBaseURL)
 	if err != nil {
 		return err
 	}
-	ic.baseUrl = baseUrl
+	ic.baseURL = baseURL
 	return nil
 }
 
-func (ic *internalClient) init_server_config() error {
+func (ic *internalClient) fetchServerConfig() error {
 	serverconfig := internalClientServerConfig{}
-	status_code, err := ic._http_get("/configuration", &serverconfig)
+	statusCode, err := ic.get("/configuration", &serverconfig)
 
-	if is_status_success(status_code) {
+	if isStatusSuccess(statusCode) {
 		if err != nil {
 			return err
-		} else {
-			ic.serverConfig = &serverconfig
-			return nil
 		}
-	} else {
-		return fmt.Errorf("Failed to fetch issuer server configuration.\nStatus Code: %d\nParse Error:%s", status_code, err)
+		ic.serverConfig = &serverconfig
+		return nil
 	}
+	return fmt.Errorf("Failed to fetch issuer server configuration.\nStatus Code: %d\nParse Error:%s", statusCode, err)
 }
 
 func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
-	resp, err := http.Get(ic.serverConfig.JwksUri)
+	resp, err := http.Get(ic.serverConfig.JwksURI)
 	if err != nil {
 		return []jose.JSONWebKey{}, err
 	}
 	defer resp.Body.Close()
 
-	if !is_status_success(resp.StatusCode) {
-		return []jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksUri)
+	if !isStatusSuccess(resp.StatusCode) {
+		return []jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksURI)
 	}
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
@@ -90,17 +88,17 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	return jwks.Key(kid), nil
 }
 
-func (ic *internalClient) get_full_url(location string) string {
-	relativeUrl, err := url.Parse(location)
+func (ic *internalClient) absoluteURL(location string) string {
+	relativeURL, err := url.Parse(location)
 	if err != nil {
 		panic(err)
 	}
 
-	return ic.baseUrl.ResolveReference(relativeUrl).String()
+	return ic.baseURL.ResolveReference(relativeURL).String()
 }
 
-func (ic *internalClient) _http_get(location string, dest interface{}) (int, error) {
-	resp, err := http.Get(ic.get_full_url(location))
+func (ic *internalClient) get(location string, dest interface{}) (int, error) {
+	resp, err := http.Get(ic.absoluteURL(location))
 	if err != nil {
 		return -1, err
 	}
@@ -118,8 +116,8 @@ func (ic *internalClient) _http_get(location string, dest interface{}) (int, err
 	return resp.StatusCode, nil
 }
 
-func is_status_success(status_code int) bool {
-	if status_code >= 200 && status_code < 300 {
+func isStatusSuccess(statusCode int) bool {
+	if statusCode >= 200 && statusCode < 300 {
 		return true
 	}
 	return false

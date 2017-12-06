@@ -12,7 +12,7 @@ type jwkProvider interface {
 	Key(kid string) ([]jose.JSONWebKey, error)
 }
 
-// Extracts verified in-built claims from a jwt id_token
+// Extracts verified in-built claims from a jwt idToken
 type jwtClaimsExtractor interface {
-	GetVerifiedClaims(id_token string) (*jwt.Claims, error)
+	GetVerifiedClaims(idToken string) (*jwt.Claims, error)
 }

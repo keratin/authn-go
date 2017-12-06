@@ -2,13 +2,15 @@ package authn
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	jose "gopkg.in/square/go-jose.v2"
 
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 )
 
 // Mock jwkProvider for tests
@@ -42,14 +44,13 @@ func (m *mockJwkProvider) Key(kid string) ([]jose.JSONWebKey, error) {
 
 	if jwk, ok := m.key_map[kid]; ok {
 		return []jose.JSONWebKey{jwk}, nil
-	} else {
-		return []jose.JSONWebKey{}, nil
 	}
+	return []jose.JSONWebKey{}, nil
 }
 
 func TestKeychainCacheHit(t *testing.T) {
 	mock_provider := newMockJwkProvider()
-	keychain_cache := newKeychainCache(Config{Keychain_ttl: 1}, mock_provider)
+	keychain_cache := newKeychainCache(Config{KeychainTTL: 1}, mock_provider)
 
 	keys1, err := keychain_cache.Key("kid1")
 	assert.NoError(t, err)
@@ -75,7 +76,7 @@ func TestKeychainCacheHit(t *testing.T) {
 
 func TestKeychainCacheMissing(t *testing.T) {
 	mock_provider := newMockJwkProvider()
-	keychain_cache := newKeychainCache(Config{Keychain_ttl: 1}, mock_provider)
+	keychain_cache := newKeychainCache(Config{KeychainTTL: 1}, mock_provider)
 
 	keysNone, err := keychain_cache.Key("kidNone")
 	assert.NoError(t, err)
@@ -90,11 +91,11 @@ func TestKeychainCacheMissing(t *testing.T) {
 
 func TestKeychainCacheTTL(t *testing.T) {
 	mock_provider := newMockJwkProvider()
-	keychain_cache := newKeychainCache(Config{Keychain_ttl: 1}, mock_provider)
+	keychain_cache := newKeychainCache(Config{KeychainTTL: 1}, mock_provider)
 	// Minimum TTL is 1 min. But we cant wait that long to test.
 	// TODO: Go is not flexible enough to accept both decimal and integer ttl. Consider using seconds?
 	// Hacky test because we are screwing with internals
-	keychain_cache.key_cache = cache.New(time.Second, time.Second)
+	keychain_cache.keyCache = cache.New(time.Second, time.Second)
 
 	keychain_cache.Key("kid1")
 	assert.Equal(t, 1, mock_provider.hit_count)
@@ -114,7 +115,7 @@ func TestKeychainCacheTTL(t *testing.T) {
 
 func TestKeychainCacheError(t *testing.T) {
 	mock_provider := newMockJwkProvider()
-	keychain_cache := newKeychainCache(Config{Keychain_ttl: 1}, mock_provider)
+	keychain_cache := newKeychainCache(Config{KeychainTTL: 1}, mock_provider)
 
 	keysError, err := keychain_cache.Key("kidError")
 	assert.EqualError(t, err, "testing error")
