@@ -1,8 +1,9 @@
 package authn
 
 import (
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	jose "gopkg.in/square/go-jose.v2"
 )
@@ -16,7 +17,7 @@ type keychainCache struct {
 
 // Creates a new keychainCache which wraps around base_key_provider
 func newKeychainCache(config Config, base_key_provider jwkProvider) *keychainCache {
-	ttl := config.Keychain_ttl
+	ttl := config.KeychainTTL
 	return &keychainCache{
 		key_cache:         cache.New(time.Duration(ttl)*time.Minute, time.Duration(2*ttl)*time.Minute),
 		base_key_provider: base_key_provider,

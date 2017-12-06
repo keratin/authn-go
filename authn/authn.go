@@ -22,7 +22,7 @@ func NewAuthnClient(config Config) (*AuthnClient, error) {
 	}
 
 	kchain := newKeychainCache(config, ac.iclient)
-	ac.verifier, err = newIdTokenVerifier(config, kchain)
+	ac.verifier, err = newIDTokenVerifier(config, kchain)
 	if err != nil {
 		return nil, err
 	}

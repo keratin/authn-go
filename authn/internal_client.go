@@ -13,11 +13,11 @@ import (
 type internalClient struct {
 	config       Config
 	serverConfig *internalClientServerConfig
-	baseUrl      *url.URL
+	baseURL      *url.URL
 }
 
 type internalClientServerConfig struct {
-	JwksUri string `json:"jwks_uri"`
+	JwksURI string `json:"jwks_uri"`
 }
 
 func newInternalClient(config Config) (*internalClient, error) {
@@ -41,11 +41,11 @@ func newInternalClient(config Config) (*internalClient, error) {
 }
 
 func (ic *internalClient) init_base_url() error {
-	baseUrl, err := url.Parse(ic.config.PrivateBaseUrl)
+	baseURL, err := url.Parse(ic.config.PrivateBaseURL)
 	if err != nil {
 		return err
 	}
-	ic.baseUrl = baseUrl
+	ic.baseURL = baseURL
 	return nil
 }
 
@@ -66,14 +66,14 @@ func (ic *internalClient) init_server_config() error {
 }
 
 func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
-	resp, err := http.Get(ic.serverConfig.JwksUri)
+	resp, err := http.Get(ic.serverConfig.JwksURI)
 	if err != nil {
 		return []jose.JSONWebKey{}, err
 	}
 	defer resp.Body.Close()
 
 	if !is_status_success(resp.StatusCode) {
-		return []jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksUri)
+		return []jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.serverConfig.JwksURI)
 	}
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
@@ -91,12 +91,12 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 }
 
 func (ic *internalClient) get_full_url(location string) string {
-	relativeUrl, err := url.Parse(location)
+	relativeURL, err := url.Parse(location)
 	if err != nil {
 		panic(err)
 	}
 
-	return ic.baseUrl.ResolveReference(relativeUrl).String()
+	return ic.baseURL.ResolveReference(relativeURL).String()
 }
 
 func (ic *internalClient) _http_get(location string, dest interface{}) (int, error) {

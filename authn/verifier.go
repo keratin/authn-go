@@ -2,9 +2,10 @@ package authn
 
 import (
 	"errors"
-	jwt "gopkg.in/square/go-jose.v2/jwt"
 	"net/url"
 	"time"
+
+	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
 // A JWT Claims extractor (jwtClaimsExtractor) implementation
@@ -17,7 +18,7 @@ type idTokenVerifier struct {
 
 // Creates a new idTokenVerifier object by using kchain as the JWK provider
 // Claims are verified against the values specified in config
-func newIdTokenVerifier(config Config, kchain jwkProvider) (*idTokenVerifier, error) {
+func newIDTokenVerifier(config Config, kchain jwkProvider) (*idTokenVerifier, error) {
 	conf_issuer, err := url.Parse(config.Issuer)
 	if err != nil {
 		return nil, err
