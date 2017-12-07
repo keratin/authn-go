@@ -8,7 +8,7 @@ import (
 )
 
 func TestInternalClient(t *testing.T) {
-	t.Run("absolute URLs", func(t *testing.T) {
+	t.Run("absoluteURL", func(t *testing.T) {
 		testCases := []struct {
 			baseURL     string
 			path        string
@@ -16,8 +16,8 @@ func TestInternalClient(t *testing.T) {
 		}{
 			{"https://authn.keratin.tech", "path", "https://authn.keratin.tech/path"},
 			{"https://authn.keratin.tech/", "path", "https://authn.keratin.tech/path"},
-			{"https://authn.keratin.tech/dir", "path", "https://authn.keratin.tech/dir/path"},
-			{"https://authn.keratin.tech/dir/", "path", "https://authn.keratin.tech/dir/path"},
+			{"https://keratin.tech/authn", "path", "https://keratin.tech/authn/path"},
+			{"https://keratin.tech/authn/", "path", "https://keratin.tech/authn/path"},
 		}
 
 		for _, tc := range testCases {
