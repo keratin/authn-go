@@ -15,6 +15,10 @@ type internalClient struct {
 }
 
 func newInternalClient(base string) (*internalClient, error) {
+	// ensure that base ends with a '/', so ResolveReference() will work as desired
+	if base[len(base)-1] != '/' {
+		base = base + "/"
+	}
 	baseURL, err := url.Parse(base)
 	if err != nil {
 		return nil, err
@@ -23,6 +27,7 @@ func newInternalClient(base string) (*internalClient, error) {
 	return &internalClient{baseURL: baseURL}, nil
 }
 
+// TODO: test coverage
 func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	resp, err := http.Get(ic.absoluteURL("jwks"))
 	if err != nil {
@@ -31,7 +36,7 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	defer resp.Body.Close()
 
 	if !isStatusSuccess(resp.StatusCode) {
-		return []jose.JSONWebKey{}, fmt.Errorf("Failed to get jwks from jwk url: %s", ic.absoluteURL("jwks"))
+		return []jose.JSONWebKey{}, fmt.Errorf("Received %d from %s", resp.StatusCode, ic.absoluteURL("jwks"))
 	}
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
