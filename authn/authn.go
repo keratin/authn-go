@@ -48,19 +48,19 @@ func (ac *Client) SubjectFrom(idToken string) (string, error) {
 	return claims.Subject, nil
 }
 
-// DefaultClient can be initialized by InitWithConfig and used by SubjectFrom.
+// DefaultClient can be initialized by Configure and used by SubjectFrom.
 var DefaultClient *Client
 
 func defaultClient() *Client {
 	if DefaultClient == nil {
-		panic("Please initialize DefaultClient using InitWithConfig")
+		panic("Please initialize DefaultClient using Configure")
 	}
 	return DefaultClient
 }
 
-// InitWithConfig initializes the default AuthN client with the given config. This is necessary to
+// Configure initializes the default AuthN client with the given config. This is necessary to
 // use authn.SubjectFrom without keeping a reference to your own AuthN client.
-func InitWithConfig(config Config) error {
+func Configure(config Config) error {
 	client, err := NewClient(config)
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func InitWithConfig(config Config) error {
 	return nil
 }
 
-// SubjectFrom will use the the client configured by InitWithConfig to extract a subject from the
+// SubjectFrom will use the the client configured by Configure to extract a subject from the
 // given idToken.
 func SubjectFrom(idToken string) (string, error) {
 	return defaultClient().SubjectFrom(idToken)
