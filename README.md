@@ -28,7 +28,7 @@ import (
 var jwt1 = `<your test jwt here>`
 
 func main() {
-	err := authn.Configure(authn.Config{
+  err := authn.Configure(authn.Config{
     // The AUTHN_URL of your Keratin AuthN server. This will be used to verify tokens created by
     // AuthN, and will also be used for API calls unless PrivateBaseURL is also set.
     Issuer:         "https://issuer.example.com",
