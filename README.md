@@ -23,7 +23,7 @@ import (
 var jwt1 = `<your test jwt here>`
 
 func main() {
-	err := authn.InitWithConfig(authn.Config{
+	err := authn.Configure(authn.Config{
 		Issuer:         "https://issuer.example.com",
 		PrivateBaseURL: "http://private.example.com",
 		Audience:       "application.example.com",
