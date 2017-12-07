@@ -21,8 +21,8 @@ go get github.com/keratin/authn-go/authn
 package main
 
 import (
-	"fmt"
-	"github.com/keratin/authn-go/authn"
+  "fmt"
+  "github.com/keratin/authn-go/authn"
 )
 
 var jwt1 = `<your test jwt here>`
@@ -41,7 +41,7 @@ func main() {
     // the Client provided by this library.
     //
     // TIP: make them extra secure in production!
-	  Username:       "<Authn Username>",
+    Username:       "<Authn Username>",
     Password:       "<Authn Password>",
 
     // OPTIONAL: Send private API calls to AuthN using private network routing. This can be
