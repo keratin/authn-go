@@ -8,6 +8,10 @@ import (
 	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
+var (
+	ErrNoKey = errors.New("No keys found")
+)
+
 // A JWT Claims extractor (jwtClaimsExtractor) implementation
 // which extracts claims from Authn idToken
 type idTokenVerifier struct {
@@ -68,7 +72,7 @@ func (verifier *idTokenVerifier) claims(idToken string) (*jwt.Claims, error) {
 		return nil, err
 	}
 	if len(keys) == 0 {
-		return nil, errors.New("No keys found")
+		return nil, ErrNoKey
 	}
 	key := keys[0]
 
@@ -85,15 +89,9 @@ func (verifier *idTokenVerifier) claims(idToken string) (*jwt.Claims, error) {
 func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	var err error
 
-	// Standard validator uses exact matching instead of URL matching
-	err = verifier.verifyIssuer(claims)
-	if err != nil {
-		return err
-	}
-
 	// Validate rest of the claims
-	// TODO: Does Audience need URL matching too?
 	err = claims.Validate(jwt.Expected{
+		Issuer:   verifier.issuerURL.String(),
 		Time:     time.Now(),
 		Audience: jwt.Audience{verifier.audience},
 	})
@@ -101,17 +99,5 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 		return err
 	}
 
-	return nil
-}
-
-// Verify the issuer claim against the configured issuer by using url comparison
-func (verifier *idTokenVerifier) verifyIssuer(claims *jwt.Claims) error {
-	issuer, err := url.Parse(claims.Issuer)
-	if err != nil {
-		return err
-	}
-	if verifier.issuerURL.String() != issuer.String() {
-		return jwt.ErrInvalidIssuer
-	}
 	return nil
 }
