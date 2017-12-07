@@ -11,7 +11,7 @@ import (
 // A JWT Claims extractor (jwtClaimsExtractor) implementation
 // which extracts claims from Authn idToken
 type idTokenVerifier struct {
-	config    Config
+	audience  string
 	keychain  jwkProvider
 	issuerURL *url.URL
 }
@@ -25,7 +25,7 @@ func newIDTokenVerifier(config Config, keychain jwkProvider) (*idTokenVerifier, 
 	}
 
 	return &idTokenVerifier{
-		config:    config,
+		audience:  config.Audience,
 		keychain:  keychain,
 		issuerURL: issuer,
 	}, nil
@@ -86,7 +86,7 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	var err error
 
 	// Standard validator uses exact matching instead of URL matching
-	err = verifier.verifyTokenFromUs(claims)
+	err = verifier.verifyIssuer(claims)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	// TODO: Does Audience need URL matching too?
 	err = claims.Validate(jwt.Expected{
 		Time:     time.Now(),
-		Audience: jwt.Audience{verifier.config.Audience},
+		Audience: jwt.Audience{verifier.audience},
 	})
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 }
 
 // Verify the issuer claim against the configured issuer by using url comparison
-func (verifier *idTokenVerifier) verifyTokenFromUs(claims *jwt.Claims) error {
+func (verifier *idTokenVerifier) verifyIssuer(claims *jwt.Claims) error {
 	issuer, err := url.Parse(claims.Issuer)
 	if err != nil {
 		return err
