@@ -11,32 +11,16 @@ import (
 )
 
 type internalClient struct {
-	config  Config
 	baseURL *url.URL
 }
 
-func newInternalClient(config Config) (*internalClient, error) {
-	var err error
-
-	ic := internalClient{
-		config: config,
-	}
-
-	err = ic.setBaseURLFromConfig()
+func newInternalClient(base string) (*internalClient, error) {
+	baseURL, err := url.Parse(base)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ic, nil
-}
-
-func (ic *internalClient) setBaseURLFromConfig() error {
-	baseURL, err := url.Parse(ic.config.PrivateBaseURL)
-	if err != nil {
-		return err
-	}
-	ic.baseURL = baseURL
-	return nil
+	return &internalClient{baseURL: baseURL}, nil
 }
 
 func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
@@ -68,6 +52,7 @@ func (ic *internalClient) absoluteURL(path string) string {
 	return ic.baseURL.ResolveReference(&url.URL{Path: path}).String()
 }
 
+// unused. this will eventually execute private admin actions.
 func (ic *internalClient) get(path string, dest interface{}) (int, error) {
 	resp, err := http.Get(ic.absoluteURL(path))
 	if err != nil {
@@ -88,8 +73,5 @@ func (ic *internalClient) get(path string, dest interface{}) (int, error) {
 }
 
 func isStatusSuccess(statusCode int) bool {
-	if statusCode >= 200 && statusCode < 300 {
-		return true
-	}
-	return false
+	return statusCode >= 200 && statusCode < 300
 }

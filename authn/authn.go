@@ -19,7 +19,7 @@ func NewClient(config Config) (*Client, error) {
 
 	ac.config = config
 
-	ac.iclient, err = newInternalClient(config)
+	ac.iclient, err = newInternalClient(config.PrivateBaseURL)
 	if err != nil {
 		return nil, err
 	}
