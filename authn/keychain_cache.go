@@ -16,10 +16,9 @@ type keychainCache struct {
 }
 
 // Creates a new keychainCache which wraps around keyProvider
-func newKeychainCache(config Config, keyProvider jwkProvider) *keychainCache {
-	ttl := config.KeychainTTL
+func newKeychainCache(ttl time.Duration, keyProvider jwkProvider) *keychainCache {
 	return &keychainCache{
-		keyCache:    cache.New(time.Duration(ttl)*time.Minute, time.Duration(2*ttl)*time.Minute),
+		keyCache:    cache.New(ttl, 2*ttl),
 		keyProvider: keyProvider,
 	}
 }
