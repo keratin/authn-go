@@ -2,7 +2,7 @@
 
 Keratin AuthN is an authentication service that keeps you in control of the experience without forcing you to be an expert in web security.
 
-This library provides utilities to help integrate with a Go application. You will also need a client for your frontend, such as [https://github.com/keratin/authn-js](keratin/authn-js).
+This library provides utilities to help integrate with a Go application. You will also need a client for your frontend, such as [https://github.com/keratin/authn-js](https://github.com/keratin/authn-js).
 
 [![Godoc](https://godoc.org/github.com/keratin/authn-go/authn?status.svg)](https://godoc.org/github.com/keratin/authn-go/authn)
 [![Gitter](https://badges.gitter.im/keratin/authn-server.svg)](https://gitter.im/keratin/authn-server?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
