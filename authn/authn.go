@@ -9,7 +9,7 @@ import "time"
 type Client struct {
 	config   Config
 	iclient  *internalClient
-	verifier jwtClaimsExtractor
+	verifier JWTClaimsExtractor
 }
 
 // NewClient returns an initialized and configured Client.
@@ -27,7 +27,7 @@ func NewClient(config Config) (*Client, error) {
 	}
 
 	kchain := newKeychainCache(time.Duration(config.KeychainTTL)*time.Minute, ac.iclient)
-	ac.verifier, err = newIDTokenVerifier(config, kchain)
+	ac.verifier, err = NewIDTokenVerifier(config.Issuer, config.Audience, kchain)
 	if err != nil {
 		return nil, err
 	}

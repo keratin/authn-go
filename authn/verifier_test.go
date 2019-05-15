@@ -26,19 +26,17 @@ func TestIDTokenVerifier(t *testing.T) {
 	// build a verifier
 	jwks := &mockJwkProvider{key_map: map[string]jose.JSONWebKey{}}
 	jwks.key_map[defaultJWK.KeyID] = jose.JSONWebKey{Key: defaultKey.Public(), KeyID: "defaultKey"}
-	config := Config{
-		Issuer:   "https://authn.example.com",
-		Audience: "app.example.com",
-	}
-	verifier, err := newIDTokenVerifier(config, jwks)
+	issuer := "https://authn.example.com"
+	audience := "app.example.com"
+	verifier, err := NewIDTokenVerifier(issuer, audience, jwks)
 	require.NoError(t, err)
 
 	// factory defaults
 	randInt, err := rand.Int(rand.Reader, big.NewInt(99999))
 	require.NoError(t, err)
 	defaultClaims := jwt.Claims{
-		Issuer:   config.Issuer,
-		Audience: jwt.Audience{config.Audience},
+		Issuer:   issuer,
+		Audience: jwt.Audience{audience},
 		Subject:  randInt.String(),
 		Expiry:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
 		IssuedAt: jwt.NewNumericDate(time.Now().Add(-time.Minute)),
@@ -62,7 +60,7 @@ func TestIDTokenVerifier(t *testing.T) {
 	t.Run("audience string", func(t *testing.T) {
 		token, err := jwt.Signed(defaultSigner).Claims(map[string]interface{}{
 			"iss": defaultClaims.Issuer,
-			"aud": config.Audience,
+			"aud": audience,
 			"sub": defaultClaims.Subject,
 			"exp": defaultClaims.Expiry.Time().Unix(),
 			"iat": defaultClaims.IssuedAt.Time().Unix(),

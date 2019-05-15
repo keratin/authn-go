@@ -13,7 +13,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-// Mock jwkProvider for tests
+// Mock JWKProvider for tests
 // Stores keys locally
 type mockJwkProvider struct {
 	key_map   map[string]jose.JSONWebKey

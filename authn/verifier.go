@@ -12,26 +12,26 @@ var (
 	ErrNoKey = errors.New("No keys found")
 )
 
-// A JWT Claims extractor (jwtClaimsExtractor) implementation
+// A JWT Claims extractor (JWTClaimsExtractor) implementation
 // which extracts claims from Authn idToken
 type idTokenVerifier struct {
 	audience  string
-	keychain  jwkProvider
+	keychain  JWKProvider
 	issuerURL *url.URL
 }
 
 // Creates a new idTokenVerifier object by using keychain as the JWK provider
 // Claims are verified against the values specified in config
-func newIDTokenVerifier(config Config, keychain jwkProvider) (*idTokenVerifier, error) {
-	issuer, err := url.Parse(config.Issuer)
+func NewIDTokenVerifier(issuer, audience string, keychain JWKProvider) (*idTokenVerifier, error) {
+	issuerURL, err := url.Parse(issuer)
 	if err != nil {
 		return nil, err
 	}
 
 	return &idTokenVerifier{
-		audience:  config.Audience,
+		audience:  audience,
 		keychain:  keychain,
-		issuerURL: issuer,
+		issuerURL: issuerURL,
 	}, nil
 }
 
