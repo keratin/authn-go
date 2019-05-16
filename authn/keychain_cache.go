@@ -8,15 +8,15 @@ import (
 	jose "gopkg.in/square/go-jose.v2"
 )
 
-// keychainCache is a jwkProvider which wraps around another jwkProvider
+// keychainCache is a JWKProvider which wraps around another JWKProvider
 // and adds a caching layer in between
 type keychainCache struct {
 	keyCache    *cache.Cache //local in-memory cache to store keys
-	keyProvider jwkProvider  //base jwkProvider for backup after cache miss
+	keyProvider JWKProvider  //base JWKProvider for backup after cache miss
 }
 
 // Creates a new keychainCache which wraps around keyProvider
-func newKeychainCache(ttl time.Duration, keyProvider jwkProvider) *keychainCache {
+func newKeychainCache(ttl time.Duration, keyProvider JWKProvider) *keychainCache {
 	return &keychainCache{
 		keyCache:    cache.New(ttl, 2*ttl),
 		keyProvider: keyProvider,
