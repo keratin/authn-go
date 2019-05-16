@@ -1,11 +1,5 @@
 language: go
 go:
-  - 1.x
+  - 1.12.x
 
-before_install:
-  - sudo add-apt-repository ppa:masterminds/glide -y
-  - sudo apt-get update -q
-  - sudo apt-get install glide -y
-install:
-  - make vendor
-script: make test
+script: env GO111MODULE=on make test
