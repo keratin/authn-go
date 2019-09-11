@@ -12,5 +12,6 @@ test:
 .PHONY: release
 release: test
 	git tag v$(VERSION)
+	git push
 	git push --tags
 	open https://github.com/$(NAME)/releases/tag/v$(VERSION)
