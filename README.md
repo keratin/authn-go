@@ -26,9 +26,10 @@ import (
 )
 
 var jwt1 = `<your test jwt here>`
+var accountID = `<test ID>`
 
 func main() {
-  err := authn.Configure(authn.Config{
+  err := authn.NewClient(authn.Config{
     // The AUTHN_URL of your Keratin AuthN server. This will be used to verify tokens created by
     // AuthN, and will also be used for API calls unless PrivateBaseURL is also set.
     Issuer:         "https://issuer.example.com",
@@ -44,7 +45,7 @@ func main() {
     Username:       "<Authn Username>",
     Password:       "<Authn Password>",
 
-    // OPTIONAL: Send private API calls to AuthN using private network routing. This can be
+    // RECOMMENDED: Send private API calls to AuthN using private network routing. This can be
     // necessary if your environment has a firewall to limit public endpoints.
     PrivateBaseURL: "http://private.example.com",
   })
@@ -55,6 +56,12 @@ func main() {
   sub, err := authn.SubjectFrom(jwt1)
   fmt.Println(sub)
   fmt.Println(err)
-}
 
+  // LockAccount will lock an AuthN account using the same ID that you saw in the user's JWT when
+  // they signed up. That account will be unable to log in until it is unlocked.
+  //
+  // See the godocs for all actions that you can take on an account.
+  err = authn.LockAccount(accountID)
+  fmt.Println(err)
+}
 ```
