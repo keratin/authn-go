@@ -1,6 +1,9 @@
 package authn
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 // TODO: jose/jwt references are all over the place. Refactor possible?
 
@@ -21,7 +24,7 @@ func NewClient(config Config) (*Client, error) {
 
 	ac.config = config
 
-	ac.iclient, err = newInternalClient(config.PrivateBaseURL)
+	ac.iclient, err = newInternalClient(config.PrivateBaseURL, config.Username, config.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +49,51 @@ func (ac *Client) SubjectFrom(idToken string) (string, error) {
 		return "", err
 	}
 	return claims.Subject, nil
+}
+
+//GetAccount gets the account with the associated id
+func (ac *Client) GetAccount(id string) (*Account, error) { //Should this be a string or an int?
+	return ac.iclient.GetAccount(id)
+}
+
+//Update updates the account with the associated id
+func (ac *Client) Update(id, username string) error {
+	return ac.iclient.Update(id, username)
+}
+
+//LockAccount locks the account with the associated id
+func (ac *Client) LockAccount(id string) error {
+	return ac.iclient.LockAccount(id)
+}
+
+//UnlockAccount unlocks the account with the associated id
+func (ac *Client) UnlockAccount(id string) error {
+	return ac.iclient.UnlockAccount(id)
+}
+
+//ArchiveAccount archives the account with the associated id
+func (ac *Client) ArchiveAccount(id string) error {
+	return ac.iclient.ArchiveAccount(id)
+}
+
+//ImportAccount imports an account with the provided information
+func (ac *Client) ImportAccount(username, password string, locked bool) error {
+	return ac.iclient.ImportAccount(username, password, locked)
+}
+
+//ExpirePassword expires the password of the account with the associated id
+func (ac *Client) ExpirePassword(id string) error {
+	return ac.iclient.ExpirePassword(id)
+}
+
+//ServiceStats gets the http response object from calling the service stats endpoint
+func (ac *Client) ServiceStats() (*http.Response, error) {
+	return ac.iclient.ServiceStats()
+}
+
+//ServerStats gets the http response object from calling the server stats endpoint
+func (ac *Client) ServerStats() (*http.Response, error) {
+	return ac.iclient.ServerStats()
 }
 
 // DefaultClient can be initialized by Configure and used by SubjectFrom.
