@@ -451,6 +451,7 @@ func TestICImportAccount(t *testing.T) {
 	}
 	type response struct {
 		code     int
+		id       int
 		errorMsg string
 	}
 	testCases := []struct {
@@ -468,6 +469,7 @@ func TestICImportAccount(t *testing.T) {
 			},
 			response: response{
 				code:     http.StatusCreated,
+				id:       12345,
 				errorMsg: "",
 			},
 		},
@@ -499,6 +501,13 @@ func TestICImportAccount(t *testing.T) {
 			assert.Equal(t, strconv.FormatBool(tc.request.locked), r.PostFormValue("locked"))
 			assert.Equal(t, "/accounts/import", r.URL.Path)
 			w.WriteHeader(tc.response.code)
+			if tc.response.code == http.StatusCreated {
+				w.Write([]byte(`{
+					"result": {
+						"id": ` + strconv.Itoa(tc.response.id) + `
+					}
+				}`))
+			}
 		})
 		httpClient, teardown := testingHTTPClient(h)
 		defer teardown()
@@ -509,9 +518,10 @@ func TestICImportAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.ImportAccount(tc.request.username, tc.request.password, tc.request.locked)
+		id, err := cli.ImportAccount(tc.request.username, tc.request.password, tc.request.locked)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
+			assert.Equal(t, tc.response.id, id)
 		} else { //Expecting an error
 			assert.Equal(t, tc.response.errorMsg, err.Error())
 		}

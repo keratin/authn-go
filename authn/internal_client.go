@@ -123,14 +123,30 @@ func (ic *internalClient) ArchiveAccount(id string) error {
 }
 
 //ImportAccount imports an existing account
-func (ic *internalClient) ImportAccount(username, password string, locked bool) error {
+func (ic *internalClient) ImportAccount(username, password string, locked bool) (int, error) {
 	form := url.Values{}
 	form.Add("username", username)
 	form.Add("password", password)
 	form.Add("locked", strconv.FormatBool(locked))
 
-	_, err := ic.doWithAuth(post, "accounts/import", strings.NewReader(form.Encode()))
-	return err
+	resp, err := ic.doWithAuth(post, "accounts/import", strings.NewReader(form.Encode()))
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+
+	data := struct {
+		Result struct {
+			ID int `json:"id"`
+		} `json:"result"`
+	}{}
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return -1, err
+	}
+
+	return data.Result.ID, err
 }
 
 //ExpirePassword expires the users current sessions and flags the account for a required password change on next login
