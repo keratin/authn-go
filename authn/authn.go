@@ -76,8 +76,8 @@ func (ac *Client) ArchiveAccount(id string) error {
 	return ac.iclient.ArchiveAccount(id)
 }
 
-//ImportAccount imports an account with the provided information
-func (ac *Client) ImportAccount(username, password string, locked bool) error {
+//ImportAccount imports an account with the provided information, returns the imported account id
+func (ac *Client) ImportAccount(username, password string, locked bool) (int, error) {
 	return ac.iclient.ImportAccount(username, password, locked)
 }
 
