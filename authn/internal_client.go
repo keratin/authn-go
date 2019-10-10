@@ -205,7 +205,15 @@ func (ic *internalClient) doWithAuth(verb string, path string, body io.Reader) (
 		return nil, err
 	}
 	if !isStatusSuccess(resp.StatusCode) {
-		return nil, fmt.Errorf("received %d from %s", resp.StatusCode, ic.absoluteURL(path))
+		// try to parse the error response
+		var errResp ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err != nil {
+			return nil, fmt.Errorf("received %d from %s", resp.StatusCode, ic.absoluteURL(path))
+		}
+
+		errResp.StatusCode = resp.StatusCode
+		errResp.URL = ic.absoluteURL(path)
+		return nil, &errResp
 	}
 	return resp, nil
 }
