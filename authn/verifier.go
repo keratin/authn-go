@@ -15,7 +15,7 @@ var (
 // A JWT Claims extractor (JWTClaimsExtractor) implementation
 // which extracts claims from Authn idToken
 type idTokenVerifier struct {
-	audience  string
+	audience  jwt.Audience
 	keychain  JWKProvider
 	issuerURL *url.URL
 }
@@ -29,7 +29,22 @@ func NewIDTokenVerifier(issuer, audience string, keychain JWKProvider) (*idToken
 	}
 
 	return &idTokenVerifier{
-		audience:  audience,
+		audience:  jwt.Audience{audience},
+		keychain:  keychain,
+		issuerURL: issuerURL,
+	}, nil
+}
+
+// NewIDTokenVerifierWithAudiences creates a new idTokenVerifier object by using keychain as the JWT provider
+// Claims are verified against issuer and the set of audiences
+func NewIDTokenVerifierWithAudiences(issuer string, audiences jwt.Audience, keychain JWKProvider) (*idTokenVerifier, error) {
+	issuerURL, err := url.Parse(issuer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &idTokenVerifier{
+		audience:  audiences,
 		keychain:  keychain,
 		issuerURL: issuerURL,
 	}, nil
@@ -93,7 +108,7 @@ func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
 	err = claims.Validate(jwt.Expected{
 		Issuer:   verifier.issuerURL.String(),
 		Time:     time.Now(),
-		Audience: jwt.Audience{verifier.audience},
+		Audience: verifier.audience,
 	})
 	if err != nil {
 		return err
