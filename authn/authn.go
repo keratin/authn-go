@@ -50,29 +50,22 @@ func NewClient(config Config) (*Client, error) {
 // ID and should be used as a unique foreign key in your users data.
 //
 // If the JWT does not verify, the returned error will explain why. This is for debugging purposes.
-// It is also possible to overwrite the default audience used to verify the JWT by passing
-// a jwt.Audience{} as the second parameter.
-func (ac *Client) SubjectFrom(idToken string, options ...interface{}) (string, error) {
-	verifier := ac.verifier
+func (ac *Client) SubjectFrom(idToken string) (string, error) {
+	return ac.subjectFromVerifier(idToken, ac.verifier)
+}
 
-	if len(options) > 0 {
-		// for now only one option is supported
-		if len(options) > 1 {
-			return "", ErrInvalidOptions
-		}
-
-		audience, ok := options[0].(jwt.Audience)
-		if !ok {
-			return "", ErrInvalidOptions
-		}
-
-		var err error
-		verifier, err = newIDTokenVerifierWithAudiences(ac.config.Issuer, audience, ac.kchain)
-		if err != nil {
-			return "", err
-		}
+// SubjectFromWithAudience works like SubjectFrom but allows specifying a different
+// JWT audience
+func (ac *Client) SubjectFromWithAudience(idToken string, audience jwt.Audience) (string, error) {
+	verifier, err := newIDTokenVerifierWithAudiences(ac.config.Issuer, audience, ac.kchain)
+	if err != nil {
+		return "", err
 	}
 
+	return ac.subjectFromVerifier(idToken, verifier)
+}
+
+func (ac *Client) subjectFromVerifier(idToken string, verifier JWTClaimsExtractor) (string, error) {
 	claims, err := verifier.GetVerifiedClaims(idToken)
 	if err != nil {
 		return "", err
