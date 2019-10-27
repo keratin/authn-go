@@ -20,24 +20,15 @@ type idTokenVerifier struct {
 	issuerURL *url.URL
 }
 
-// Creates a new idTokenVerifier object by using keychain as the JWK provider
+// NewIDTokenVerifier creates a new idTokenVerifier object by using keychain as the JWK provider
 // Claims are verified against the values specified in config
-func NewIDTokenVerifier(issuer, audience string, keychain JWKProvider) (*idTokenVerifier, error) {
-	issuerURL, err := url.Parse(issuer)
-	if err != nil {
-		return nil, err
-	}
-
-	return &idTokenVerifier{
-		audience:  jwt.Audience{audience},
-		keychain:  keychain,
-		issuerURL: issuerURL,
-	}, nil
+func NewIDTokenVerifier(issuer, audience string, keychain JWKProvider) (JWTClaimsExtractor, error) {
+	return newIDTokenVerifierWithAudiences(issuer, jwt.Audience{audience}, keychain)
 }
 
-// NewIDTokenVerifierWithAudiences creates a new idTokenVerifier object by using keychain as the JWT provider
+// newIDTokenVerifierWithAudiences creates a new idTokenVerifier object by using keychain as the JWT provider
 // Claims are verified against issuer and the set of audiences
-func NewIDTokenVerifierWithAudiences(issuer string, audiences jwt.Audience, keychain JWKProvider) (*idTokenVerifier, error) {
+func newIDTokenVerifierWithAudiences(issuer string, audiences jwt.Audience, keychain JWKProvider) (*idTokenVerifier, error) {
 	issuerURL, err := url.Parse(issuer)
 	if err != nil {
 		return nil, err

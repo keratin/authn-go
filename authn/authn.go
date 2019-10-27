@@ -53,11 +53,9 @@ func NewClient(config Config) (*Client, error) {
 // It is also possible to overwrite the default audience used to verify the JWT by passing
 // a jwt.Audience{} as the second parameter.
 func (ac *Client) SubjectFrom(idToken string, options ...interface{}) (string, error) {
-	var verifier JWTClaimsExtractor
+	verifier := ac.verifier
 
-	if len(options) == 0 {
-		verifier = ac.verifier
-	} else {
+	if len(options) > 0 {
 		// for now only one option is supported
 		if len(options) > 1 {
 			return "", ErrInvalidOptions
@@ -69,7 +67,7 @@ func (ac *Client) SubjectFrom(idToken string, options ...interface{}) (string, e
 		}
 
 		var err error
-		verifier, err = NewIDTokenVerifierWithAudiences(ac.config.Issuer, audience, ac.kchain)
+		verifier, err = newIDTokenVerifierWithAudiences(ac.config.Issuer, audience, ac.kchain)
 		if err != nil {
 			return "", err
 		}
