@@ -681,3 +681,127 @@ func TestICServerStats(t *testing.T) {
 		assert.Nil(t, err)
 	}
 }
+
+func TestICErrorResponses(t *testing.T) {
+	type request struct {
+		url        string
+		htusername string
+		htpassword string
+		id         string
+	}
+	type response struct {
+		code int
+		body string
+	}
+
+	testCases := []struct {
+		request     request
+		response    response
+		errorFields map[string]string
+		errMsg      string
+	}{
+		{
+			request: request{
+				url:        "http://test.com",
+				htusername: "user",
+				htpassword: "password",
+				id:         "1",
+			},
+			response: response{
+				code: http.StatusOK,
+			},
+			errorFields: nil,
+		},
+		{
+			request: request{
+				url:        "http://test.com",
+				htusername: "user",
+				htpassword: "password",
+				id:         "1",
+			},
+			response: response{
+				code: http.StatusNotFound,
+				body: `{"errors":[{"field": "id", "message": "NOT_FOUND"}]}`,
+			},
+			errorFields: map[string]string{
+				"id": "NOT_FOUND",
+			},
+			errMsg: "received 404 from http://test.com/accounts/1/expire_password. Errors in id: NOT_FOUND",
+		},
+		{
+			request: request{
+				url:        "http://test.com",
+				htusername: "user",
+				htpassword: "password",
+				id:         "1",
+			},
+			response: response{
+				code: http.StatusInternalServerError,
+				body: `{
+					"errors": [
+						{"field": "field1", "message": "Error-Message-1"},
+						{"field": "field2", "message": "Error-Message-2"}
+					]
+				}`,
+			},
+			errorFields: map[string]string{
+				"field1": "Error-Message-1",
+				"field2": "Error-Message-2",
+			},
+			errMsg: "received 500 from http://test.com/accounts/1/expire_password. Errors in field1: Error-Message-1; field2: Error-Message-2",
+		},
+	}
+
+	for _, tc := range testCases {
+		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			username, password, ok := r.BasicAuth()
+			assert.Equal(t, ok, true)
+			assert.Equal(t, http.MethodPatch, r.Method)
+			assert.Equal(t, tc.request.htusername, username)
+			assert.Equal(t, tc.request.htpassword, password)
+
+			w.WriteHeader(tc.response.code)
+			if tc.response.code != http.StatusOK {
+				w.Write([]byte(tc.response.body))
+			}
+		})
+
+		httpClient, teardown := testingHTTPClient(h)
+		defer teardown()
+
+		cli, err := newInternalClient(tc.request.url, tc.request.htusername, tc.request.htpassword)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		cli.client = httpClient
+
+		err = cli.ExpirePassword(tc.request.id)
+		if tc.errorFields == nil {
+			assert.NoError(t, err)
+		} else {
+			errResp, ok := err.(*ErrorResponse)
+			if !ok {
+				t.Fatal("error must be ErrorResponse")
+			}
+
+			assert.Equal(t, tc.response.code, errResp.StatusCode)
+			assert.Equal(t, tc.errMsg, err.Error())
+
+			// check all expected field errors
+			for field, expMsg := range tc.errorFields {
+				assert.True(t, errResp.HasField(field))
+				msg, ok := errResp.Field(field)
+				assert.True(t, ok)
+				assert.Equal(t, expMsg, msg)
+			}
+
+			// make sure there aren't any errors other than the
+			// expected ones
+			for _, fe := range errResp.Errors {
+				_, ok := tc.errorFields[fe.Field]
+				assert.True(t, ok)
+			}
+		}
+	}
+}
