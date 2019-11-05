@@ -4,6 +4,12 @@ Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## HEAD
 
+## 1.1.0
+
+### Added
+
+* `authn.SubjectFromWithAudience` adds support for multi-domain authentication [#15]
+
 ## 1.0.0
 
 ### Added

@@ -1,7 +1,7 @@
 ORG := keratin
 PROJECT := authn-go
 NAME := $(ORG)/$(PROJECT)
-VERSION := 1.0.0
+VERSION := 1.1.0
 
 # Run tests
 .PHONY: test
