@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -55,7 +56,7 @@ func TestICGetAccount(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		id       int
@@ -74,7 +75,7 @@ func TestICGetAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				id:       1,
@@ -90,7 +91,7 @@ func TestICGetAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusNotFound,
@@ -106,7 +107,7 @@ func TestICGetAccount(t *testing.T) {
 			assert.Equal(t, http.MethodGet, r.Method)
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
-			assert.Equal(t, "/accounts/"+tc.request.id, r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 			//if we're mocking a good request, return the json
 			if tc.response.code == http.StatusOK {
@@ -129,7 +130,7 @@ func TestICGetAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		account, err := cli.GetAccount(tc.request.id)
+		account, err := cli.GetAccount(context.Background(), tc.request.id)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 			assert.Equal(t, tc.response.id, account.ID)
@@ -148,7 +149,7 @@ func TestICUpdate(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 		username   string
 	}
 	type response struct {
@@ -164,7 +165,7 @@ func TestICUpdate(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 				username:   "test@test.com",
 			},
 			response: response{
@@ -177,7 +178,7 @@ func TestICUpdate(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 				username:   "test@test.com",
 			},
 			response: response{
@@ -190,7 +191,7 @@ func TestICUpdate(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 				username:   "test@test.com",
 			},
 			response: response{
@@ -208,7 +209,7 @@ func TestICUpdate(t *testing.T) {
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
 			assert.Equal(t, tc.request.username, r.PostFormValue("username"))
-			assert.Equal(t, "/accounts/"+tc.request.id, r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 		})
 		httpClient, teardown := testingHTTPClient(h)
@@ -220,7 +221,7 @@ func TestICUpdate(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.Update(tc.request.id, tc.request.username)
+		err = cli.Update(context.Background(), tc.request.id, tc.request.username)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 		} else { //Expecting an error
@@ -235,7 +236,7 @@ func TestICLockAccount(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		code     int
@@ -250,7 +251,7 @@ func TestICLockAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusOK,
@@ -262,7 +263,7 @@ func TestICLockAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusNotFound,
@@ -278,7 +279,7 @@ func TestICLockAccount(t *testing.T) {
 			assert.Equal(t, http.MethodPatch, r.Method)
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
-			assert.Equal(t, "/accounts/"+tc.request.id+"/lock", r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d/lock", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 		})
 		httpClient, teardown := testingHTTPClient(h)
@@ -290,7 +291,7 @@ func TestICLockAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.LockAccount(tc.request.id)
+		err = cli.LockAccount(context.Background(), tc.request.id)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 		} else { //Expecting an error
@@ -305,7 +306,7 @@ func TestICUnlockAccount(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		code     int
@@ -320,7 +321,7 @@ func TestICUnlockAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusOK,
@@ -332,7 +333,7 @@ func TestICUnlockAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusNotFound,
@@ -348,7 +349,7 @@ func TestICUnlockAccount(t *testing.T) {
 			assert.Equal(t, http.MethodPatch, r.Method)
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
-			assert.Equal(t, "/accounts/"+tc.request.id+"/unlock", r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d/unlock", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 		})
 		httpClient, teardown := testingHTTPClient(h)
@@ -360,7 +361,7 @@ func TestICUnlockAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.UnlockAccount(tc.request.id)
+		err = cli.UnlockAccount(context.Background(), tc.request.id)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 		} else { //Expecting an error
@@ -375,7 +376,7 @@ func TestICArchiveAccount(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		code     int
@@ -390,7 +391,7 @@ func TestICArchiveAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusOK,
@@ -402,7 +403,7 @@ func TestICArchiveAccount(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusNotFound,
@@ -418,7 +419,7 @@ func TestICArchiveAccount(t *testing.T) {
 			assert.Equal(t, http.MethodDelete, r.Method)
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
-			assert.Equal(t, "/accounts/"+tc.request.id, r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 		})
 		httpClient, teardown := testingHTTPClient(h)
@@ -430,7 +431,7 @@ func TestICArchiveAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.ArchiveAccount(tc.request.id)
+		err = cli.ArchiveAccount(context.Background(), tc.request.id)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 		} else { //Expecting an error
@@ -518,7 +519,7 @@ func TestICImportAccount(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		id, err := cli.ImportAccount(tc.request.username, tc.request.password, tc.request.locked)
+		id, err := cli.ImportAccount(context.Background(), tc.request.username, tc.request.password, tc.request.locked)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 			assert.Equal(t, tc.response.id, id)
@@ -534,7 +535,7 @@ func TestICExpirePassword(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		code     int
@@ -549,7 +550,7 @@ func TestICExpirePassword(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusOK,
@@ -561,7 +562,7 @@ func TestICExpirePassword(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "username",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code:     http.StatusNotFound,
@@ -577,7 +578,7 @@ func TestICExpirePassword(t *testing.T) {
 			assert.Equal(t, http.MethodPatch, r.Method)
 			assert.Equal(t, tc.request.htusername, username)
 			assert.Equal(t, tc.request.htpassword, password)
-			assert.Equal(t, "/accounts/"+tc.request.id+"/expire_password", r.URL.Path)
+			assert.Equal(t, fmt.Sprintf("/accounts/%d/expire_password", tc.request.id), r.URL.Path)
 			w.WriteHeader(tc.response.code)
 		})
 		httpClient, teardown := testingHTTPClient(h)
@@ -589,7 +590,7 @@ func TestICExpirePassword(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		err = cli.ExpirePassword(tc.request.id)
+		err = cli.ExpirePassword(context.Background(), tc.request.id)
 		if tc.response.errorMsg == "" { //Expecting no error
 			assert.Nil(t, err)
 		} else { //Expecting an error
@@ -635,7 +636,7 @@ func TestICServiceStats(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		_, err = cli.ServiceStats()
+		_, err = cli.ServiceStats(context.Background())
 		assert.Nil(t, err)
 	}
 }
@@ -677,7 +678,7 @@ func TestICServerStats(t *testing.T) {
 		}
 		cli.client = httpClient
 
-		_, err = cli.ServerStats()
+		_, err = cli.ServerStats(context.Background())
 		assert.Nil(t, err)
 	}
 }
@@ -687,7 +688,7 @@ func TestICErrorResponses(t *testing.T) {
 		url        string
 		htusername string
 		htpassword string
-		id         string
+		id         int
 	}
 	type response struct {
 		code int
@@ -705,7 +706,7 @@ func TestICErrorResponses(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "user",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code: http.StatusOK,
@@ -717,7 +718,7 @@ func TestICErrorResponses(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "user",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code: http.StatusNotFound,
@@ -733,7 +734,7 @@ func TestICErrorResponses(t *testing.T) {
 				url:        "http://test.com",
 				htusername: "user",
 				htpassword: "password",
-				id:         "1",
+				id:         1,
 			},
 			response: response{
 				code: http.StatusInternalServerError,
@@ -776,7 +777,7 @@ func TestICErrorResponses(t *testing.T) {
 
 		cli.client = httpClient
 
-		err = cli.ExpirePassword(tc.request.id)
+		err = cli.ExpirePassword(context.Background(), tc.request.id)
 		if tc.errorFields == nil {
 			assert.NoError(t, err)
 		} else {

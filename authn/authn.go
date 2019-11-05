@@ -1,8 +1,10 @@
 package authn
 
 import (
+	"context"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	jwt "gopkg.in/square/go-jose.v2/jwt"
@@ -75,47 +77,71 @@ func (ac *Client) subjectFromVerifier(idToken string, verifier JWTClaimsExtracto
 
 // GetAccount gets the account with the associated id
 func (ac *Client) GetAccount(id string) (*Account, error) { //Should this be a string or an int?
-	return ac.iclient.GetAccount(id)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return nil, err
+	}
+	return ac.iclient.GetAccount(context.Background(), accountID)
 }
 
 // Update updates the account with the associated id
 func (ac *Client) Update(id, username string) error {
-	return ac.iclient.Update(id, username)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return ac.iclient.Update(context.Background(), accountID, username)
 }
 
 // LockAccount locks the account with the associated id
 func (ac *Client) LockAccount(id string) error {
-	return ac.iclient.LockAccount(id)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return ac.iclient.LockAccount(context.Background(), accountID)
 }
 
 // UnlockAccount unlocks the account with the associated id
 func (ac *Client) UnlockAccount(id string) error {
-	return ac.iclient.UnlockAccount(id)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return ac.iclient.UnlockAccount(context.Background(), accountID)
 }
 
 // ArchiveAccount archives the account with the associated id
 func (ac *Client) ArchiveAccount(id string) error {
-	return ac.iclient.ArchiveAccount(id)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return ac.iclient.ArchiveAccount(context.Background(), accountID)
 }
 
 // ImportAccount imports an account with the provided information, returns the imported account id
 func (ac *Client) ImportAccount(username, password string, locked bool) (int, error) {
-	return ac.iclient.ImportAccount(username, password, locked)
+	return ac.iclient.ImportAccount(context.Background(), username, password, locked)
 }
 
 // ExpirePassword expires the password of the account with the associated id
 func (ac *Client) ExpirePassword(id string) error {
-	return ac.iclient.ExpirePassword(id)
+	accountID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	return ac.iclient.ExpirePassword(context.Background(), accountID)
 }
 
 // ServiceStats gets the http response object from calling the service stats endpoint
 func (ac *Client) ServiceStats() (*http.Response, error) {
-	return ac.iclient.ServiceStats()
+	return ac.iclient.ServiceStats(context.Background())
 }
 
 // ServerStats gets the http response object from calling the server stats endpoint
 func (ac *Client) ServerStats() (*http.Response, error) {
-	return ac.iclient.ServerStats()
+	return ac.iclient.ServerStats(context.Background())
 }
 
 // DefaultClient can be initialized by Configure and used by SubjectFrom.
