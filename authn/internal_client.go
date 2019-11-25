@@ -1,6 +1,7 @@
 package authn
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -75,9 +76,10 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	return jwks.Key(kid), nil
 }
 
-//GetAccount gets the account details for the specified account id
-func (ic *internalClient) GetAccount(id string) (*Account, error) {
-	resp, err := ic.doWithAuth(get, "accounts/"+id, nil)
+// GetAccount gets the account details for the specified account id
+func (ic *internalClient) GetAccount(ctx context.Context, id int) (*Account, error) {
+	url := fmt.Sprintf("accounts/%d", id)
+	resp, err := ic.doWithAuth(ctx, get, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,41 +97,45 @@ func (ic *internalClient) GetAccount(id string) (*Account, error) {
 	return &data.Result, nil
 }
 
-//Update updates the account with the specified id
-func (ic *internalClient) Update(id, username string) error {
+// Update updates the account with the specified id
+func (ic *internalClient) Update(ctx context.Context, id int, username string) error {
 	form := url.Values{}
 	form.Add("username", username)
 
-	_, err := ic.doWithAuth(patch, "accounts/"+id, strings.NewReader(form.Encode()))
+	url := fmt.Sprintf("accounts/%d", id)
+	_, err := ic.doWithAuth(ctx, patch, url, strings.NewReader(form.Encode()))
 	return err
 }
 
-//LockAccount locks the account with the specified id
-func (ic *internalClient) LockAccount(id string) error {
-	_, err := ic.doWithAuth(patch, "accounts/"+id+"/lock", nil)
+// LockAccount locks the account with the specified id
+func (ic *internalClient) LockAccount(ctx context.Context, id int) error {
+	url := fmt.Sprintf("accounts/%d/lock", id)
+	_, err := ic.doWithAuth(ctx, patch, url, nil)
 	return err
 }
 
-//UnlockAccount unlocks the account with the specified id
-func (ic *internalClient) UnlockAccount(id string) error {
-	_, err := ic.doWithAuth(patch, "accounts/"+id+"/unlock", nil)
+// UnlockAccount unlocks the account with the specified id
+func (ic *internalClient) UnlockAccount(ctx context.Context, id int) error {
+	url := fmt.Sprintf("accounts/%d/unlock", id)
+	_, err := ic.doWithAuth(ctx, patch, url, nil)
 	return err
 }
 
-//ArchiveAccount archives the account with the specified id
-func (ic *internalClient) ArchiveAccount(id string) error {
-	_, err := ic.doWithAuth(delete, "accounts/"+id, nil)
+// ArchiveAccount archives the account with the specified id
+func (ic *internalClient) ArchiveAccount(ctx context.Context, id int) error {
+	url := fmt.Sprintf("accounts/%d", id)
+	_, err := ic.doWithAuth(ctx, delete, url, nil)
 	return err
 }
 
-//ImportAccount imports an existing account
-func (ic *internalClient) ImportAccount(username, password string, locked bool) (int, error) {
+// ImportAccount imports an existing account
+func (ic *internalClient) ImportAccount(ctx context.Context, username, password string, locked bool) (int, error) {
 	form := url.Values{}
 	form.Add("username", username)
 	form.Add("password", password)
 	form.Add("locked", strconv.FormatBool(locked))
 
-	resp, err := ic.doWithAuth(post, "accounts/import", strings.NewReader(form.Encode()))
+	resp, err := ic.doWithAuth(ctx, post, "accounts/import", strings.NewReader(form.Encode()))
 	if err != nil {
 		return -1, err
 	}
@@ -149,20 +155,21 @@ func (ic *internalClient) ImportAccount(username, password string, locked bool) 
 	return data.Result.ID, err
 }
 
-//ExpirePassword expires the users current sessions and flags the account for a required password change on next login
-func (ic *internalClient) ExpirePassword(id string) error {
-	_, err := ic.doWithAuth(patch, "accounts/"+id+"/expire_password", nil)
+// ExpirePassword expires the users current sessions and flags the account for a required password change on next login
+func (ic *internalClient) ExpirePassword(ctx context.Context, id int) error {
+	url := fmt.Sprintf("accounts/%d/expire_password", id)
+	_, err := ic.doWithAuth(ctx, patch, url, nil)
 	return err
 }
 
-//ServiceStats returns the raw request from the /stats endpoint
-func (ic *internalClient) ServiceStats() (*http.Response, error) {
-	return ic.doWithAuth(get, "stats", nil)
+// ServiceStats returns the raw request from the /stats endpoint
+func (ic *internalClient) ServiceStats(ctx context.Context) (*http.Response, error) {
+	return ic.doWithAuth(ctx, get, "stats", nil)
 }
 
-//ServerStats returns the raw request from the /metrics endpoint
-func (ic *internalClient) ServerStats() (*http.Response, error) {
-	return ic.doWithAuth(get, "metrics", nil)
+// ServerStats returns the raw request from the /metrics endpoint
+func (ic *internalClient) ServerStats(ctx context.Context) (*http.Response, error) {
+	return ic.doWithAuth(ctx, get, "metrics", nil)
 }
 
 func (ic *internalClient) absoluteURL(path string) string {
@@ -189,11 +196,14 @@ func (ic *internalClient) get(path string, dest interface{}) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (ic *internalClient) doWithAuth(verb string, path string, body io.Reader) (*http.Response, error) {
+func (ic *internalClient) doWithAuth(ctx context.Context, verb string, path string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(verb, ic.absoluteURL(path), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req = req.WithContext(ctx)
+
 	req.SetBasicAuth(ic.username, ic.password)
 
 	if verb == post || verb == patch || verb == put {
