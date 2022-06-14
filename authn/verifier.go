@@ -5,12 +5,11 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/keratin/authn-server/app/tokens/identities"
 	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
-var (
-	ErrNoKey = errors.New("No keys found")
-)
+var ErrNoKey = errors.New("No keys found")
 
 // A JWT Claims extractor (JWTClaimsExtractor) implementation
 // which extracts claims from Authn idToken
@@ -42,7 +41,7 @@ func newIDTokenVerifierWithAudiences(issuer string, audiences jwt.Audience, keyc
 }
 
 // Gets verified claims from an Authn idToken
-func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*jwt.Claims, error) {
+func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*identities.Claims, error) {
 	var err error
 
 	claims, err := verifier.claims(idToken)
@@ -60,7 +59,7 @@ func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*jwt.Claims,
 
 // Gets claims object from an idToken using the key from keychain
 // Key from keychain is fetched using KeyID found in idToken's header
-func (verifier *idTokenVerifier) claims(idToken string) (*jwt.Claims, error) {
+func (verifier *idTokenVerifier) claims(idToken string) (*identities.Claims, error) {
 	var err error
 
 	idJwt, err := jwt.ParseSigned(idToken)
@@ -82,7 +81,7 @@ func (verifier *idTokenVerifier) claims(idToken string) (*jwt.Claims, error) {
 	}
 	key := keys[0]
 
-	claims := &jwt.Claims{}
+	claims := &identities.Claims{}
 	err = idJwt.Claims(key, claims)
 	if err != nil {
 		return nil, err
@@ -92,7 +91,7 @@ func (verifier *idTokenVerifier) claims(idToken string) (*jwt.Claims, error) {
 }
 
 // Verify the claims against the configured values
-func (verifier *idTokenVerifier) verify(claims *jwt.Claims) error {
+func (verifier *idTokenVerifier) verify(claims *identities.Claims) error {
 	var err error
 
 	// Validate rest of the claims
