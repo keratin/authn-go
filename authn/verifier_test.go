@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/keratin/authn-server/app/tokens/identities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	jose "gopkg.in/square/go-jose.v2"
@@ -34,12 +35,15 @@ func TestIDTokenVerifier(t *testing.T) {
 	// factory defaults
 	randInt, err := rand.Int(rand.Reader, big.NewInt(99999))
 	require.NoError(t, err)
-	defaultClaims := jwt.Claims{
-		Issuer:   issuer,
-		Audience: jwt.Audience{audience},
-		Subject:  randInt.String(),
-		Expiry:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
-		IssuedAt: jwt.NewNumericDate(time.Now().Add(-time.Minute)),
+	defaultClaims := identities.Claims{
+		AuthTime: jwt.NewNumericDate(time.Now().Add(-time.Hour)),
+		Claims: jwt.Claims{
+			Issuer:   issuer,
+			Audience: jwt.Audience{audience},
+			Subject:  randInt.String(),
+			Expiry:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			IssuedAt: jwt.NewNumericDate(time.Now().Add(-time.Minute)),
+		},
 	}
 	defaultSigner, err := jose.NewSigner(
 		jose.SigningKey{Algorithm: jose.RS256, Key: defaultJWK},

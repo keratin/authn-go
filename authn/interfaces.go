@@ -1,8 +1,8 @@
 package authn
 
 import (
+	"github.com/keratin/authn-server/app/tokens/identities"
 	jose "gopkg.in/square/go-jose.v2"
-	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
 // Provides a JSON Web Key from a Key ID
@@ -14,5 +14,5 @@ type JWKProvider interface {
 
 // Extracts verified in-built claims from a jwt idToken
 type JWTClaimsExtractor interface {
-	GetVerifiedClaims(idToken string) (*jwt.Claims, error)
+	GetVerifiedClaims(idToken string) (*identities.Claims, error)
 }

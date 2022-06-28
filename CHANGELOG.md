@@ -4,6 +4,11 @@ Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## HEAD
 
+## 1.2.0
+
+* Add `authn.ClaimsFrom` and `authn.ClaimsFromWithAudience` to support
+  extraction of identity token claims.
+
 ## 1.1.0
 
 ### Added
