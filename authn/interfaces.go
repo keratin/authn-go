@@ -1,7 +1,6 @@
 package authn
 
 import (
-	"github.com/keratin/authn-server/app/tokens/identities"
 	jose "gopkg.in/square/go-jose.v2"
 )
 
@@ -14,5 +13,5 @@ type JWKProvider interface {
 
 // Extracts verified in-built claims from a jwt idToken
 type JWTClaimsExtractor interface {
-	GetVerifiedClaims(idToken string) (*identities.Claims, error)
+	GetVerifiedClaims(idToken string) (*Claims, error)
 }

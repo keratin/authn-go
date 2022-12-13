@@ -75,7 +75,7 @@ func (ic *internalClient) Key(kid string) ([]jose.JSONWebKey, error) {
 	return jwks.Key(kid), nil
 }
 
-//GetAccount gets the account details for the specified account id
+// GetAccount gets the account details for the specified account id
 func (ic *internalClient) GetAccount(id string) (*Account, error) {
 	resp, err := ic.doWithAuth(get, "accounts/"+id, nil)
 	if err != nil {
@@ -95,7 +95,7 @@ func (ic *internalClient) GetAccount(id string) (*Account, error) {
 	return &data.Result, nil
 }
 
-//Update updates the account with the specified id
+// Update updates the account with the specified id
 func (ic *internalClient) Update(id, username string) error {
 	form := url.Values{}
 	form.Add("username", username)
@@ -104,25 +104,25 @@ func (ic *internalClient) Update(id, username string) error {
 	return err
 }
 
-//LockAccount locks the account with the specified id
+// LockAccount locks the account with the specified id
 func (ic *internalClient) LockAccount(id string) error {
 	_, err := ic.doWithAuth(patch, "accounts/"+id+"/lock", nil)
 	return err
 }
 
-//UnlockAccount unlocks the account with the specified id
+// UnlockAccount unlocks the account with the specified id
 func (ic *internalClient) UnlockAccount(id string) error {
 	_, err := ic.doWithAuth(patch, "accounts/"+id+"/unlock", nil)
 	return err
 }
 
-//ArchiveAccount archives the account with the specified id
+// ArchiveAccount archives the account with the specified id
 func (ic *internalClient) ArchiveAccount(id string) error {
 	_, err := ic.doWithAuth(delete, "accounts/"+id, nil)
 	return err
 }
 
-//ImportAccount imports an existing account
+// ImportAccount imports an existing account
 func (ic *internalClient) ImportAccount(username, password string, locked bool) (int, error) {
 	form := url.Values{}
 	form.Add("username", username)
@@ -149,18 +149,18 @@ func (ic *internalClient) ImportAccount(username, password string, locked bool) 
 	return data.Result.ID, err
 }
 
-//ExpirePassword expires the users current sessions and flags the account for a required password change on next login
+// ExpirePassword expires the users current sessions and flags the account for a required password change on next login
 func (ic *internalClient) ExpirePassword(id string) error {
 	_, err := ic.doWithAuth(patch, "accounts/"+id+"/expire_password", nil)
 	return err
 }
 
-//ServiceStats returns the raw request from the /stats endpoint
+// ServiceStats returns the raw request from the /stats endpoint
 func (ic *internalClient) ServiceStats() (*http.Response, error) {
 	return ic.doWithAuth(get, "stats", nil)
 }
 
-//ServerStats returns the raw request from the /metrics endpoint
+// ServerStats returns the raw request from the /metrics endpoint
 func (ic *internalClient) ServerStats() (*http.Response, error) {
 	return ic.doWithAuth(get, "metrics", nil)
 }

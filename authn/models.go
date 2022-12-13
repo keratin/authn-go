@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//Account is an AuthN user account
+// Account is an AuthN user account
 type Account struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
