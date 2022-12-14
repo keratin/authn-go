@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/keratin/authn-server/app/tokens/identities"
 	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
@@ -41,7 +40,7 @@ func newIDTokenVerifierWithAudiences(issuer string, audiences jwt.Audience, keyc
 }
 
 // Gets verified claims from an Authn idToken
-func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*identities.Claims, error) {
+func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*Claims, error) {
 	var err error
 
 	claims, err := verifier.claims(idToken)
@@ -59,7 +58,7 @@ func (verifier *idTokenVerifier) GetVerifiedClaims(idToken string) (*identities.
 
 // Gets claims object from an idToken using the key from keychain
 // Key from keychain is fetched using KeyID found in idToken's header
-func (verifier *idTokenVerifier) claims(idToken string) (*identities.Claims, error) {
+func (verifier *idTokenVerifier) claims(idToken string) (*Claims, error) {
 	var err error
 
 	idJwt, err := jwt.ParseSigned(idToken)
@@ -81,7 +80,7 @@ func (verifier *idTokenVerifier) claims(idToken string) (*identities.Claims, err
 	}
 	key := keys[0]
 
-	claims := &identities.Claims{}
+	claims := &Claims{}
 	err = idJwt.Claims(key, claims)
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (verifier *idTokenVerifier) claims(idToken string) (*identities.Claims, err
 }
 
 // Verify the claims against the configured values
-func (verifier *idTokenVerifier) verify(claims *identities.Claims) error {
+func (verifier *idTokenVerifier) verify(claims *Claims) error {
 	var err error
 
 	// Validate rest of the claims

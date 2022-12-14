@@ -49,7 +49,7 @@ func testingHTTPClient(handler http.Handler) (*http.Client, func()) {
 	return cli, s.Close
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=get-account
+// Based on information at https://keratin.github.io/authn-server/#/api?id=get-account
 func TestICGetAccount(t *testing.T) {
 	type request struct {
 		url        string
@@ -142,7 +142,7 @@ func TestICGetAccount(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=update
+// Based on information at https://keratin.github.io/authn-server/#/api?id=update
 func TestICUpdate(t *testing.T) {
 	type request struct {
 		url        string
@@ -229,7 +229,7 @@ func TestICUpdate(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=lock-account
+// Based on information at https://keratin.github.io/authn-server/#/api?id=lock-account
 func TestICLockAccount(t *testing.T) {
 	type request struct {
 		url        string
@@ -299,7 +299,7 @@ func TestICLockAccount(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=unlock-account
+// Based on information at https://keratin.github.io/authn-server/#/api?id=unlock-account
 func TestICUnlockAccount(t *testing.T) {
 	type request struct {
 		url        string
@@ -369,7 +369,7 @@ func TestICUnlockAccount(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=archive-account
+// Based on information at https://keratin.github.io/authn-server/#/api?id=archive-account
 func TestICArchiveAccount(t *testing.T) {
 	type request struct {
 		url        string
@@ -439,7 +439,7 @@ func TestICArchiveAccount(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=import-account
+// Based on information at https://keratin.github.io/authn-server/#/api?id=import-account
 func TestICImportAccount(t *testing.T) {
 	type request struct {
 		url        string
@@ -528,7 +528,7 @@ func TestICImportAccount(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=expire-password
+// Based on information at https://keratin.github.io/authn-server/#/api?id=expire-password
 func TestICExpirePassword(t *testing.T) {
 	type request struct {
 		url        string
@@ -598,7 +598,7 @@ func TestICExpirePassword(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=service-stats
+// Based on information at https://keratin.github.io/authn-server/#/api?id=service-stats
 func TestICServiceStats(t *testing.T) {
 	type request struct {
 		url        string
@@ -640,7 +640,7 @@ func TestICServiceStats(t *testing.T) {
 	}
 }
 
-//Based on information at https://keratin.github.io/authn-server/#/api?id=server-stats
+// Based on information at https://keratin.github.io/authn-server/#/api?id=server-stats
 func TestICServerStats(t *testing.T) {
 	type request struct {
 		url        string

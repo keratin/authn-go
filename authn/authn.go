@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/keratin/authn-server/app/tokens/identities"
 	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
@@ -69,13 +68,13 @@ func (ac *Client) SubjectFromWithAudience(idToken string, audience jwt.Audience)
 // if and only if the token is a valid JWT that passes all
 // verification requirements. If the JWT does not verify, the returned
 // error will explain why. This is for debugging purposes.
-func (ac *Client) ClaimsFrom(idToken string) (*identities.Claims, error) {
+func (ac *Client) ClaimsFrom(idToken string) (*Claims, error) {
 	return ac.claimsFromVerifier(idToken, ac.verifier)
 }
 
 // ClaimsFromWithAudience works like ClaimsFrom but allows
 // specifying a different JWT audience.
-func (ac *Client) ClaimsFromWithAudience(idToken string, audience jwt.Audience) (*identities.Claims, error) {
+func (ac *Client) ClaimsFromWithAudience(idToken string, audience jwt.Audience) (*Claims, error) {
 	verifier, err := newIDTokenVerifierWithAudiences(ac.config.Issuer, audience, ac.kchain)
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (ac *Client) subjectFromVerifier(idToken string, verifier JWTClaimsExtracto
 	return claims.Subject, nil
 }
 
-func (ac *Client) claimsFromVerifier(idToken string, verifier JWTClaimsExtractor) (*identities.Claims, error) {
+func (ac *Client) claimsFromVerifier(idToken string, verifier JWTClaimsExtractor) (*Claims, error) {
 	claims, err := verifier.GetVerifiedClaims(idToken)
 	if err != nil {
 		return nil, err
