@@ -110,7 +110,7 @@ func TestICGetAccount(t *testing.T) {
 			w.WriteHeader(tc.response.code)
 			//if we're mocking a good request, return the json
 			if tc.response.code == http.StatusOK {
-				w.Write([]byte(`{
+				_, _ = w.Write([]byte(`{
 					"result": {
 						"id": ` + strconv.Itoa(tc.response.id) + `,
 						"username": "` + tc.response.username + `",
@@ -502,7 +502,7 @@ func TestICImportAccount(t *testing.T) {
 			assert.Equal(t, "/accounts/import", r.URL.Path)
 			w.WriteHeader(tc.response.code)
 			if tc.response.code == http.StatusCreated {
-				w.Write([]byte(`{
+				_, _ = w.Write([]byte(`{
 					"result": {
 						"id": ` + strconv.Itoa(tc.response.id) + `
 					}
@@ -762,7 +762,7 @@ func TestICErrorResponses(t *testing.T) {
 
 			w.WriteHeader(tc.response.code)
 			if tc.response.code != http.StatusOK {
-				w.Write([]byte(tc.response.body))
+				_, _ = w.Write([]byte(tc.response.body))
 			}
 		})
 

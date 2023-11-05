@@ -91,17 +91,10 @@ func (verifier *idTokenVerifier) claims(idToken string) (*Claims, error) {
 
 // Verify the claims against the configured values
 func (verifier *idTokenVerifier) verify(claims *Claims) error {
-	var err error
-
 	// Validate rest of the claims
-	err = claims.Validate(jwt.Expected{
+	return claims.Validate(jwt.Expected{
 		Issuer:   verifier.issuerURL.String(),
 		Time:     time.Now(),
 		Audience: verifier.audience,
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

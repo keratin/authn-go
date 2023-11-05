@@ -3,12 +3,11 @@ package authn
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	jose "gopkg.in/square/go-jose.v2"
-
-	"time"
 
 	"github.com/patrickmn/go-cache"
 )
@@ -97,9 +96,11 @@ func TestKeychainCacheTTL(t *testing.T) {
 	// Hacky test because we are screwing with internals
 	keychain_cache.keyCache = cache.New(time.Second, time.Second)
 
-	keychain_cache.Key("kid1")
+	_, err := keychain_cache.Key("kid1")
+	assert.NoError(t, err)
 	assert.Equal(t, 1, mock_provider.hit_count)
-	keychain_cache.Key("kid1")
+	_, err = keychain_cache.Key("kid1")
+	assert.NoError(t, err)
 	assert.Equal(t, 1, mock_provider.hit_count) //Because we cached itached
 
 	// Wait for cache to expire

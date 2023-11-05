@@ -19,7 +19,7 @@ import (
 
 func TestIDTokenVerifier(t *testing.T) {
 	// the good test key
-	defaultKey, err := rsa.GenerateKey(rand.Reader, 512)
+	defaultKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 	defaultJWK := jose.JSONWebKey{Key: defaultKey, KeyID: "defaultKey"}
 
@@ -105,7 +105,7 @@ func TestIDTokenVerifier(t *testing.T) {
 	})
 
 	t.Run("signed by unknown keypair", func(t *testing.T) {
-		unknownKey, err := rsa.GenerateKey(rand.Reader, 512)
+		unknownKey, err := rsa.GenerateKey(rand.Reader, 2048)
 		require.NoError(t, err)
 		unknownJWK := jose.JSONWebKey{Key: unknownKey, KeyID: "unknownKey"}
 		unknownSigner, err := jose.NewSigner(
