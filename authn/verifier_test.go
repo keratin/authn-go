@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
+	jose "github.com/go-jose/go-jose/v3"
+	jwt "github.com/go-jose/go-jose/v3/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	jose "gopkg.in/square/go-jose.v2"
-	jwt "gopkg.in/square/go-jose.v2/jwt"
 )
 
 func TestIDTokenVerifier(t *testing.T) {
@@ -92,9 +92,9 @@ func TestIDTokenVerifier(t *testing.T) {
 			token string
 			err   error
 		}{
-			{"", fmt.Errorf("square/go-jose: compact JWS format must have three parts")},
-			{"a", fmt.Errorf("square/go-jose: compact JWS format must have three parts")},
-			{"a.b", fmt.Errorf("square/go-jose: compact JWS format must have three parts")},
+			{"", fmt.Errorf("go-jose/go-jose: compact JWS format must have three parts")},
+			{"a", fmt.Errorf("go-jose/go-jose: compact JWS format must have three parts")},
+			{"a.b", fmt.Errorf("go-jose/go-jose: compact JWS format must have three parts")},
 			{"a.b.c", base64.CorruptInputError(0)},
 		}
 

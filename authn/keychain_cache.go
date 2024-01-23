@@ -3,9 +3,8 @@ package authn
 import (
 	"time"
 
+	jose "github.com/go-jose/go-jose/v3"
 	"github.com/patrickmn/go-cache"
-
-	jose "gopkg.in/square/go-jose.v2"
 )
 
 // keychainCache is a JWKProvider which wraps around another JWKProvider
