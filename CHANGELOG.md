@@ -4,6 +4,9 @@ Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## HEAD
 
+* Replace deprecated gopkg.in/square/go-jose.v2 with github.com/square/go-jose/v3 [#29]
+* Update golang.org/x/crypto from 0.14.0 to 0.17.0 [#27]
+
 ## 1.2.0
 
 * Add `authn.ClaimsFrom` and `authn.ClaimsFromWithAudience` to support
