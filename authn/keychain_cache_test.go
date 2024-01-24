@@ -5,11 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
-	jose "gopkg.in/square/go-jose.v2"
-
+	jose "github.com/go-jose/go-jose/v3"
 	"github.com/patrickmn/go-cache"
+	"github.com/stretchr/testify/assert"
 )
 
 // Mock JWKProvider for tests

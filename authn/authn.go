@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	jwt "gopkg.in/square/go-jose.v2/jwt"
+	jwt "github.com/go-jose/go-jose/v3/jwt"
 )
 
 // TODO: jose/jwt references are all over the place. Refactor possible?
